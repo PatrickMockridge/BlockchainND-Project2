@@ -24,24 +24,24 @@ module.exports = {
         res(JSON.parse(v))
         }
         catch (err) {
-          console.log(err)
+          
         }
       })
     })
   },
 
-  getBlockHeight: () => {
+  getChainLength: () => {
     return new Promise((res, rej) => {
-      let height = 0
+      let length = 0
       db.createReadStream()
         .on('data', data => {
-          height++
+          length++
         })
         .on('error', err => {
           rej(err)
         })
         .on('close', () => {
-          res(height)
+          res(length)
         })
     })
   },

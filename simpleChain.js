@@ -33,7 +33,7 @@ const heightKey = 'heightKey';
 |  =========================================================*/
 class Blockchain {
   constructor () {
-    leveldb.getBlockHeight().then(num => {
+    leveldb.getChainLength().then(num => {
       if (num === 0) {
         this.addBlock(
           new Block('The Times 03/Jan/2009 Chancellor on brink of second bailout for banks')
@@ -43,7 +43,7 @@ class Blockchain {
   }
 
   async addBlock (newBlock) {
-    newBlock.height = await this.getBlockHeight()
+    newBlock.height = await this.getChainLength()
 
     newBlock.time = new Date()
       .getTime()
@@ -60,9 +60,9 @@ class Blockchain {
     await leveldb.addBlock(newBlock.height, JSON.stringify(newBlock))
   }
 
-  async getBlockHeight () {
-    const height = await leveldb.getBlockHeight()
-    return height
+  async getChainLength () {
+    const length = await leveldb.getChainLength()
+    return length
   }
 
   async getBlock (blockHeight) {
@@ -101,31 +101,33 @@ class Blockchain {
 
   async validateChain () {
     let errorLog = []
-    let chainLength = await this.getBlockHeight()
+    let chainLength = await this.getChainLength()
     let chain = []
-    for (let i = 0; i < chainLength - 1; i++) {
+    for (let i = 0; i < chainLength; i++) {
       const valid = await this.validateBlock(i)
       if (!valid)errorLog.push(i)
 
       let block = await this.getBlock(i)
       let blockHash = block.hash
-
-      let nextBlock = await this.getBlock(i + 1)
-      let previousHash = nextBlock.previousBlockHash
-      block.isValid = valid
-
-      chain.push(block)
-      if (blockHash !== previousHash) {
-        errorLog.push(i)
+      if (i < ( chainLength - 1 )) {
+        let nextBlock = await this.getBlock(i + 1)
+        let previousHash = nextBlock.previousBlockHash
+        block.isValid = valid
+        chain.push(block)
+        if (blockHash !== previousHash) {
+            errorLog.push(i)
+        }
       }
-    }
 
-    if (errorLog.length > 0) {
-      console.log('Block errors = ' + errorLog.length)
-      console.log('Blocks: ' + errorLog)
-    } else {
-      console.log('No errors detected')
-    }
+
+
+      if (errorLog.length > 0) {
+        console.log('Block errors = ' + errorLog.length)
+        console.log('Blocks: ' + errorLog)
+      } else {
+        console.log('No errors detected')
+        }
+        }
     return chain
   }
 }

@@ -14,9 +14,10 @@ module.exports = {
   },
   generateChecks : () => {
     (async function loop() {
-        let h = await blockchain.getBlockHeight();
+        let l = await blockchain.getChainLength();
+        let h = l - 1
         console.log('Blockchain height: ' + h);
-        for (let i = 0; i < h; i++) {
+        for (let i = 0; i <= h; i++) {
             let b = await blockchain.getBlock(i);
             console.log('block #' + i + ' - ' + b.body + ' - ' + b.previousBlockHash);
         }
